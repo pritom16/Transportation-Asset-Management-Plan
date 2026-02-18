@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: tam-dashboard
+    env: python
+    plan: standard
+    pythonVersion: 3.11
+    
+    buildCommand: |
+      apt-get update && \
+      apt-get install -y gdal-bin libgdal-dev && \
+      pip install --upgrade pip setuptools wheel && \
+      pip install -r requirements.txt
+    
+    startCommand: gunicorn main:app
+    
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 10000

@@ -169,9 +169,8 @@ def analyze_osmnx():
         return jsonify(response)
     
     except Exception as e:
-        import traceback
         print(traceback.format_exc())
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 def calculate_network_statistics(G):
