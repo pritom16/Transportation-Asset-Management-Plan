@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import geopandas as gpd
 import pandas as pd
@@ -12,6 +12,7 @@ import contextily as ctx
 import io
 import base64
 import os
+import traceback
 from werkzeug.utils import secure_filename
 import folium
 from branca.colormap import LinearColormap
@@ -66,6 +67,19 @@ def index():
 def centrality():
     return send_from_directory('.', 'centrality.html')
 
+@app.route('/failure')
+def failure():
+    return send_from_directory('.', 'failure.html')
+
+# Error handlers
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'error': 'Not found'}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({'error': 'Internal server error'}), 500
+
 @app.route('/api/analyze_osmnx', methods=['POST'])
 def analyze_osmnx():
 
@@ -86,7 +100,9 @@ def analyze_osmnx():
         
         stats = calculate_network_statistics(G)
 
-        network_description = generate_network_description(G, stats, location or f"{lat}, {lon}")
+        # Use location if provided, otherwise use coordinates
+        place_name = location if location else f"{lat}, {lon}" if lat and lon else "Unknown Location"
+        network_description = generate_network_description(G, stats, place_name)
 
         # --- Fixed in main.py analyze_osmnx() ---
         node_gdf = ox.graph_to_gdfs(G, edges=False)
