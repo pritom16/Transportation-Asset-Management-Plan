@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 import geopandas as gpd
 import pandas as pd
@@ -18,7 +18,8 @@ from branca.colormap import LinearColormap
 import momepy
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/https://github.com/pritom16/Transportation-Asset-Management-Plan.git": {"origins": "https://github.com/pritom16/Transportation-Asset-Management-Plan.git"}})
+# Allow requests from localhost (development) and from the Render frontend URL (production)
+CORS(app, resources={r"/api/*": {"origins": ["*"]}})
 
 
 
@@ -55,6 +56,15 @@ def get_plot_as_base64():
     img_str = base64.b64encode(buf.read()).decode('utf-8')
     plt.close()
     return f"data:image/png;base64,{img_str}"
+
+# Serve static pages
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/centrality')
+def centrality():
+    return send_from_directory('.', 'centrality.html')
 
 @app.route('/api/analyze_osmnx', methods=['POST'])
 def analyze_osmnx():
@@ -521,4 +531,5 @@ def analyze_centrality():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=True, use_reloader=True)
+    debug_mode = os.environ.get("FLASK_ENV") == "development"
+    app.run(host='0.0.0.0', port=port, debug=debug_mode, use_reloader=False)
