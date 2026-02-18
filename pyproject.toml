@@ -1,0 +1,24 @@
+[project]
+name = "arcgis-with-opensource"
+version = "0.1.0"
+description = "Transportation Asset Management Dashboard with GDOT Integration"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "arcgis>=2.4.1.1",
+    "arcgis-mapping>=4.31.0",
+    "folium>=0.20.0",
+    "geopandas>=1.1.1",
+    "ipykernel>=6.29.5",
+    "matplotlib>=3.10.3",
+    "pandas>=2.2.3",
+    "python-dotenv>=1.1.1",
+    "flask>=3.0.0",          # Required for your main.py backend
+    "flask-cors>=4.0.0",     # Required to let your HTML talk to Flask
+    "osmnx>=1.9.0",          # Required for your interactive network map
+    "networkx>=3.0",         # Backbone for osmnx calculations
+    "pyogrio>=0.7.2",        # High-performance engine for reading .gdb files
+    "rtree>=1.2.0",          # Essential for spatial joins and filtering GDOT data
+    "contextily>=1.7.0",
+    "momepy>=0.11.0",
+]

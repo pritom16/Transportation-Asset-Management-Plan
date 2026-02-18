@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mazumder Research Group | Centrality Analysis</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+  <style>
+    body { font-size: 0.9rem; }
+    .main-header .nav-link { font-weight: 600; text-transform: uppercase; font-size: 0.85rem; }
+    .research-logo { max-height: 45px; border-radius: 5px; margin-right: 10px; }
+    .info-box { margin-bottom: 8px; min-height: 65px; }
+    .info-box-number { font-size: 1.2rem; font-weight: bold; }
+    .info-box-text { font-size: 0.7rem; text-transform: uppercase; }
+    .card { margin-bottom: 10px; }
+    .card-header { padding: 0.5rem 0.8rem; background: #f8f9fa; }
+    .card-title { font-size: 0.9rem; font-weight: 600; margin: 0; }
+    .card-body { padding: 0.8rem; }
+    .form-group { margin-bottom: 0.6rem; }
+    .form-group label { font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .form-control, .form-control-sm { font-size: 0.85rem; }
+    .btn { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+    .chart-container { height: 300px; }
+    .compact-card .card-body { padding: 0.6rem; }
+    .centrality-map { min-height: 500px; background: #e9ecef; border-radius: 5px; }
+    .legend-box { background: white; padding: 10px; border-radius: 5px; border: 2px solid #dee2e6; margin-top: 10px; }
+    .legend-item { display: flex; align-items: center; margin-bottom: 5px; font-size: 0.8rem; }
+    .legend-color { width: 30px; height: 15px; margin-right: 8px; border-radius: 3px; }
+  </style>
+</head>
+<body class="hold-transition layout-top-nav">
+<div class="wrapper">
+
+  <!-- Navigation -->
+  <nav class="main-header navbar navbar-expand-md navbar-dark navbar-primary">
+    <div class="container-fluid">
+      <a href="#" class="navbar-brand">
+        <img src="https://via.placeholder.com/150x50?text=MRG+Logo" alt="MRG Logo" class="research-logo elevation-3">
+        <span class="brand-text font-weight-light">Mazumder Research Group</span>
+      </a>
+      <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse order-3" id="navbarCollapse">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link"><i class="fas fa-chart-line mr-1"></i> Network Statistics</a>
+          </li>
+          <li class="nav-item">
+            <a href="centrality.html" class="nav-link active"><i class="fas fa-hubspot mr-1"></i> Centrality Analysis</a>
+          </li>
+          <li class="nav-item">
+            <a href="failure.html" class="nav-link"><i class="fas fa-exclamation-triangle mr-1"></i> Failure Analysis</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="content-wrapper">
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-12">
+            <h1 class="m-0 text-dark">Centrality Analysis <small class="text-muted">v1.0</small></h1>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          
+          <!-- Left Sidebar - Controls -->
+          <div class="col-lg-3">
+            
+            <!-- File Upload Section -->
+            <div class="card card-success card-outline compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-upload mr-1"></i> Upload Network Data</h3>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label style="font-size: 0.75rem;">Upload Road Network File</label>
+                  <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="centralityFileInput" accept=".shp,.geojson,.json,.gdb,.csv,.zip">
+                    <label class="custom-file-label" for="centralityFileInput" style="font-size: 0.75rem;">Choose file...</label>
+                  </div>
+                  <small class="form-text text-muted" style="font-size: 0.7rem;">
+                    Supported: Shapefile (.shp/.zip), GeoJSON, GDB, CSV, KML
+                  </small>
+                </div>
+                <button class="btn btn-success btn-block btn-sm" id="analyzeCentralityBtn">
+                  <i class="fas fa-project-diagram mr-1"></i> Analyze Centrality
+                </button>
+              </div>
+            </div>
+
+            <!-- Centrality Options -->
+            <div class="card card-primary card-outline compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-cog mr-1"></i> Centrality Type</h3>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label>Select Centrality Measure</label>
+                  <select id="centralityType" class="form-control form-control-sm">
+                    <option value="betweenness_node">Node Betweenness</option>
+                    <option value="betweenness_edge">Edge Betweenness</option>
+                    <option value="closeness">Closeness Centrality</option>
+                    <option value="degree">Degree Centrality</option>
+                    <option value="eigenvector">Eigenvector Centrality</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label>Visualization Type</label>
+                  <select id="vizType" class="form-control form-control-sm">
+                    <option value="map">Interactive Map</option>
+                    <option value="both">Map + Distribution Chart</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Top N Critical Elements</label>
+                  <input type="number" id="topN" class="form-control form-control-sm" value="10" min="5" max="50">
+                </div>
+
+                <button class="btn btn-primary btn-block btn-sm" id="updateVizBtn">
+                  <i class="fas fa-sync mr-1"></i> Update Visualization
+                </button>
+              </div>
+            </div>
+
+            <!-- Statistics Summary -->
+            <div class="card card-info card-outline compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-info-circle mr-1"></i> Network Summary</h3>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-6">
+                    <div class="info-box bg-gradient-info">
+                      <div class="info-box-content text-center">
+                        <span class="info-box-text">Nodes</span>
+                        <span class="info-box-number" id="totalNodes">-</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="info-box bg-gradient-success">
+                      <div class="info-box-content text-center">
+                        <span class="info-box-text">Edges</span>
+                        <span class="info-box-number" id="totalEdges">-</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div style="font-size: 0.8rem; margin-top: 10px;">
+                  <div><strong>Max Centrality:</strong> <span id="maxCentrality">-</span></div>
+                  <div><strong>Min Centrality:</strong> <span id="minCentrality">-</span></div>
+                  <div><strong>Mean Centrality:</strong> <span id="meanCentrality">-</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Color Legend -->
+            <div class="card card-secondary card-outline compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-palette mr-1"></i> Centrality Scale</h3>
+              </div>
+              <div class="card-body">
+                <div class="legend-box">
+                  <div class="legend-item">
+                    <div class="legend-color" style="background: #8B0000;"></div>
+                    <span>Very High (Critical)</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color" style="background: #DC143C;"></div>
+                    <span>High</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color" style="background: #FF6347;"></div>
+                    <span>Medium-High</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color" style="background: #FFA500;"></div>
+                    <span>Medium</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color" style="background: #FFD700;"></div>
+                    <span>Medium-Low</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color" style="background: #90EE90;"></div>
+                    <span>Low</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color" style="background: #228B22;"></div>
+                    <span>Very Low</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Main Content Area -->
+          <div class="col-lg-9">
+            
+            <!-- Centrality Map -->
+            <div class="card card-outline card-primary">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="fas fa-map-marked-alt mr-1"></i> 
+                  <span id="mapTitle">Centrality Visualization Map</span>
+                </h3>
+              </div>
+              <div class="card-body p-0">
+                <div id="centralityMapContainer" class="centrality-map d-flex align-items-center justify-content-center">
+                  <p class="text-muted text-center px-3">
+                    <i class="fas fa-upload fa-3x mb-3 d-block"></i>
+                    Upload a network file and click "Analyze Centrality" to begin
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Distribution Chart -->
+            <div class="card card-outline card-success" id="distributionCard" style="display: none;">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-chart-bar mr-1"></i> Centrality Distribution</h3>
+              </div>
+              <div class="card-body">
+                <div class="chart-container">
+                  <canvas id="distributionChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Top Critical Elements Table -->
+            <div class="card card-outline card-danger" id="criticalTable" style="display: none;">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="fas fa-exclamation-triangle mr-1"></i> 
+                  <span id="criticalTitle">Top Critical Nodes/Edges</span>
+                </h3>
+              </div>
+              <div class="card-body p-0">
+                <div style="max-height: 300px; overflow-y: auto;">
+                  <table class="table table-sm table-striped table-hover mb-0">
+                    <thead class="bg-light">
+                      <tr id="tableHeader">
+                        <th>Rank</th>
+                        <th>ID</th>
+                        <th>Centrality Score</th>
+                        <th>Type</th>
+                      </tr>
+                    </thead>
+                    <tbody id="criticalTableBody">
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="main-footer text-sm">
+    <div class="float-right d-none d-sm-inline">Developed by <strong>Mazumder Research Group</strong></div>
+    <strong>Copyright &copy; 2026 <a href="https://pritom16.github.io/">Pritom16</a>.</strong> Mazumder Research Group
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+<script>
+const API_URL = 'https://transport-app.onrender.com/api';
+let uploadedFile = null;
+let centralityData = null;
+let distributionChart = null;
+
+$(function () {
+  // File input handler
+  $('#centralityFileInput').on('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      uploadedFile = file;
+      $('.custom-file-label').text(file.name);
+    }
+  });
+
+  // Analyze Centrality Button
+  $('#analyzeCentralityBtn').on('click', function() {
+    if (!uploadedFile) {
+      alert('Please select a file to upload');
+      return;
+    }
+    analyzeCentrality();
+  });
+
+  // Update Visualization Button
+  $('#updateVizBtn').on('click', function() {
+    if (centralityData) {
+      updateVisualization();
+    } else {
+      alert('Please analyze centrality first');
+    }
+  });
+
+  // Initialize distribution chart
+  initializeDistributionChart();
+});
+
+function initializeDistributionChart() {
+  const ctx = $('#distributionChart');
+  distributionChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Frequency',
+        data: [],
+        backgroundColor: '#007bff'
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true, title: { display: true, text: 'Frequency' } },
+        x: { title: { display: true, text: 'Centrality Range' } }
+      }
+    }
+  });
+}
+
+async function analyzeCentrality() {
+  if (!uploadedFile) return;
+  $('#analyzeCentralityBtn').html('<i class="fas fa-spinner fa-spin"></i> Analyzing...').prop('disabled', true);
+
+  try {
+    const formData = new FormData();
+    formData.append('file', uploadedFile);
+    formData.append('centrality_type', $('#centralityType').val());
+    formData.append('top_n', $('#topN').val());
+
+    const response = await fetch(`${API_URL}/analyze_centrality`, { method: 'POST', body: formData });
+    const data = await response.json();
+
+    if (data.success) {
+      // Correctly accessing the nested objects
+      $('#totalNodes').text(data.network_info.total_nodes.toLocaleString());
+      $('#totalEdges').text(data.network_info.total_edges.toLocaleString());
+      $('#maxCentrality').text(data.statistics.max.toFixed(6));
+      $('#minCentrality').text(data.statistics.min.toFixed(6));
+      $('#meanCentrality').text(data.statistics.mean.toFixed(6));
+
+      $('#centralityMapContainer').html(`<img src="${data.map_img}" class="img-fluid" style="width:100%;">`);
+
+      updateCriticalTable(data.top_elements);
+      updateDistributionChart(data.distribution);
+      updateMapTitle(); // Dynamic title update
+    } else {
+      alert("Analysis Error: " + data.error);
+    }
+  } catch (err) {
+    console.error(err);
+  } finally {
+    $('#analyzeCentralityBtn').html('<i class="fas fa-project-diagram mr-1"></i> Analyze Centrality').prop('disabled', false);
+  }
+}
+
+function updateVisualization() {
+  const centralityType = $('#centralityType').val();
+  const vizType = $('#vizType').val();
+  const topN = $('#topN').val();
+
+  $('#updateVizBtn').html('<i class="fas fa-spinner fa-spin"></i> Updating...').prop('disabled', true);
+
+  // Re-analyze with new parameters
+  analyzeCentrality().then(() => {
+    $('#updateVizBtn').html('<i class="fas fa-sync mr-1"></i> Update Visualization').prop('disabled', false);
+  });
+}
+
+function updateMapTitle() {
+  const typeMap = {
+    'betweenness_node': 'Node Betweenness Centrality',
+    'betweenness_edge': 'Edge Betweenness Centrality',
+    'closeness': 'Closeness Centrality',
+    'degree': 'Degree Centrality',
+    'eigenvector': 'Eigenvector Centrality'
+  };
+  
+  const type = $('#centralityType').val();
+  $('#mapTitle').text(typeMap[type] + ' Visualization');
+  $('#criticalTitle').text('Top Critical ' + (type.includes('node') || !type.includes('edge') ? 'Nodes' : 'Edges'));
+}
+
+function updateDistributionChart(distribution) {
+  // Use bin centers for labels
+  const labels = [];
+  for (let i = 0; i < distribution.bins.length - 1; i++) {
+    labels.push(((distribution.bins[i] + distribution.bins[i+1]) / 2).toFixed(4));
+  }
+  
+  distributionChart.data.labels = labels;
+  distributionChart.data.datasets[0].data = distribution.frequencies;
+  distributionChart.update();
+}
+
+function updateCriticalTable(topElements) {
+  const tbody = $('#criticalTableBody');
+  tbody.empty();
+
+  // THE FIX: Ensure topElements exists and is an array before looping
+  if (!topElements || !Array.isArray(topElements) || topElements.length === 0) {
+    tbody.append('<tr><td colspan="4" class="text-center text-muted">No critical elements identified.</td></tr>');
+    return;
+  }
+
+  topElements.forEach((element, index) => {
+    const row = `
+      <tr>
+        <td><span class="badge badge-danger">${index + 1}</span></td>
+        <td><code>${element.id}</code></td>
+        <td><strong>${element.centrality.toFixed(6)}</strong></td>
+        <td><i class="fas fa-circle text-primary"></i> Node</td>
+      </tr>
+    `;
+    tbody.append(row);
+  });
+
+  $('#criticalTable').show();
+}
+</script>
+</body>
+</html>

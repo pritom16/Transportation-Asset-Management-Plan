@@ -1,0 +1,7 @@
+arcgis
+geopandas
+pandas
+matplotlib
+folium
+python-dotenv
+ipykernel

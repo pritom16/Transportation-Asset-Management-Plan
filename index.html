@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mazumder Research Group | TAM Dashboard</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+  <style>
+    body { font-size: 0.9rem; }
+    .main-header .nav-link { font-weight: 600; text-transform: uppercase; font-size: 0.85rem; }
+    .research-logo { max-height: 45px; border-radius: 5px; margin-right: 10px; }
+    .info-box { margin-bottom: 8px; min-height: 65px; }
+    .info-box-number { font-size: 1.2rem; font-weight: bold; }
+    .info-box-text { font-size: 0.7rem; text-transform: uppercase; }
+    .card { margin-bottom: 10px; }
+    .card-header { padding: 0.5rem 0.8rem; background: #f8f9fa; }
+    .card-title { font-size: 0.9rem; font-weight: 600; margin: 0; }
+    .card-body { padding: 0.8rem; }
+    .form-group { margin-bottom: 0.6rem; }
+    .form-group label { font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .form-control, .form-control-sm { font-size: 0.85rem; }
+    .btn { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+    #interactive-map-container { min-height: 450px; background: #e9ecef; border-radius: 5px; }
+    .scroll-table { max-height: 280px; overflow-y: auto; }
+    .table-sm th, .table-sm td { padding: 0.4rem; font-size: 0.8rem; }
+    .checkbox-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-check { margin-bottom: 0px; padding-left: 1.2rem; }
+    .form-check-input { margin-top: 0.15rem; }
+    .form-check-label { font-size: 0.75rem; margin-left: 0px; cursor: pointer; }
+    .chart-container { height: 220px; }
+    .compact-card .card-body { padding: 0.75rem; }
+    .filter-section { background: #fff; border-radius: 3px; padding: 6px 8px; margin-bottom: 6px; border: 1px solid #dee2e6; }
+    .filter-section label { font-size: 0.75rem; font-weight: 600; margin-bottom: 3px; display: block; color: #495057; }
+    .analysis-output { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 10px; min-height: 100px; font-size: 0.85rem; white-space: pre-wrap; }
+    .checkbox-group { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; }
+    .checkbox-group.single-column { grid-template-columns: 1fr; }
+  </style>
+</head>
+<body class="hold-transition layout-top-nav">
+<div class="wrapper">
+
+  <!-- Navigation -->
+  <nav class="main-header navbar navbar-expand-md navbar-dark navbar-primary">
+    <div class="container-fluid">
+      <a href="#" class="navbar-brand">
+        <img src="https://via.placeholder.com/150x50?text=MRG+Logo" alt="MRG Logo" class="research-logo elevation-3">
+        <span class="brand-text font-weight-light">Mazumder Research Group</span>
+      </a>
+      <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse order-3" id="navbarCollapse">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link active"><i class="fas fa-chart-line mr-1"></i> Network Statistics</a>
+          </li>
+          <li class="nav-item">
+            <a href="centrality.html" class="nav-link"><i class="fas fa-hubspot mr-1"></i> Centrality Analysis</a>
+          </li>
+          <li class="nav-item">
+            <a href="failure.html" class="nav-link"><i class="fas fa-exclamation-triangle mr-1"></i> Failure Analysis</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="content-wrapper">
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-12">
+            <h1 class="m-0 text-dark">Transportation Asset Management <small class="text-muted">v1.0</small></h1>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          
+          <!-- Left Sidebar - Controls & Filters -->
+          <div class="col-lg-3">
+            
+            <!-- Key Metrics -->
+            <div class="row">
+              <div class="col-6">
+                <div class="info-box bg-gradient-navy">
+                  <div class="info-box-content text-center">
+                    <span class="info-box-text">Total Length</span>
+                    <span class="info-box-number" id="total-length">657.9 KM</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="info-box bg-gradient-success">
+                  <div class="info-box-content text-center">
+                    <span class="info-box-text">Total Nodes</span>
+                    <span class="info-box-number" id="total-nodes">25.8K</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional Metrics Row -->
+            <div class="row">
+              <div class="col-6">
+                <div class="info-box bg-gradient-info">
+                  <div class="info-box-content text-center">
+                    <span class="info-box-text">Asset Count</span>
+                    <span class="info-box-number" id="asset-count">23.4K</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="info-box bg-gradient-warning">
+                  <div class="info-box-content text-center">
+                    <span class="info-box-text">Avg Density</span>
+                    <span class="info-box-number" id="avg-density">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Network Parameters -->
+            <div class="card card-primary card-outline compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-cog mr-1"></i> Network Parameters</h3>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label>Location / City</label>
+                  <input type="text" id="locationInput" class="form-control form-control-sm" placeholder="e.g. Piedmont, CA">
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <div class="form-group">
+                      <label>Latitude</label>
+                      <input type="text" id="latInput" class="form-control form-control-sm" placeholder="e.g. 37.8715">
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="form-group">
+                      <label>Longitude</label>
+                      <input type="text" id="lonInput" class="form-control form-control-sm" placeholder="e.g. -122.27">
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Network Type</label>
+                  <select id="networkType" class="form-control form-control-sm">
+                    <option value="drive">Drive</option>
+                    <option value="walk">Walk</option>
+                    <option value="bike">Bike</option>
+                  </select>
+                </div>
+                <button class="btn btn-primary btn-block btn-sm" id="analyzeBtn">
+                  <i class="fas fa-play mr-1"></i> Analyze Network
+                </button>
+              </div>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="card card-success card-outline compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-upload mr-1"></i> Upload GIS Data</h3>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label style="font-size: 0.75rem;">Upload Road Network File</label>
+                  <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="gisFileInput" accept=".shp,.geojson,.json,.gdb,.csv,.zip">
+                    <label class="custom-file-label" for="gisFileInput" style="font-size: 0.75rem;">Choose file...</label>
+                  </div>
+                  <small class="form-text text-muted" style="font-size: 0.7rem;">
+                    Supported: Shapefile (.shp/.zip), GeoJSON, GDB, CSV, KML
+                  </small>
+                </div>
+                <button class="btn btn-success btn-block btn-sm" id="uploadAnalyzeBtn">
+                  <i class="fas fa-chart-line mr-1"></i> Analyze Uploaded Data
+                </button>
+              </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card card-secondary card-outline compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-filter mr-1"></i> Filters</h3>
+              </div>
+              <div class="card-body" style="padding: 0.5rem;">
+                <div class="filter-section">
+                  <label>Asset Status</label>
+                  <div class="checkbox-group">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="statusActive" checked>
+                      <label class="form-check-label" for="statusActive">Active</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="statusInactive">
+                      <label class="form-check-label" for="statusInactive">Inactive</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="filter-section">
+                  <label>Owner Type</label>
+                  <div class="checkbox-group">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="ownerPublic" checked>
+                      <label class="form-check-label" for="ownerPublic">Public</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="ownerPrivate" checked>
+                      <label class="form-check-label" for="ownerPrivate">Private</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="filter-section">
+                  <label>Functional Class</label>
+                  <div class="checkbox-group">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="fc1" checked>
+                      <label class="form-check-label" for="fc1">1 - Interstate</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="fc2" checked>
+                      <label class="form-check-label" for="fc2">2 - PA Freeways/Expwy</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="fc3" checked>
+                      <label class="form-check-label" for="fc3">3 - PA Other</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="fc4" checked>
+                      <label class="form-check-label" for="fc4">4 - Minor Arterial</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="fc5" checked>
+                      <label class="form-check-label" for="fc5">5 - Major Collector</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="fc6" checked>
+                      <label class="form-check-label" for="fc6">6 - Minor Collector</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="fc7" checked>
+                      <label class="form-check-label" for="fc7">7 - Local</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="filter-section">
+                  <div class="form-group">
+                    <label><i class="fas fa-road mr-1"></i> PCC Pavement Type</label>
+                    <div class="custom-control custom-checkbox">
+                      <input class="custom-control-input" type="checkbox" name="pavement_type" id="paveJPCP" value="JPCP" checked>
+                      <label for="paveJPCP" class="custom-control-label">JPCP (Plain Concrete)</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                      <input class="custom-control-input" type="checkbox" name="pavement_type" id="paveCRCP" value="CRCP" checked>
+                      <label for="paveCRCP" class="custom-control-label">CRCP (Reinforced Concrete)</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content Area -->
+          <div class="col-lg-9">
+            
+            <!-- Two Maps Side by Side -->
+            <div class="row">
+              <div class="col-lg-6">
+                <!-- OSMnx Map -->
+                <div class="card card-outline card-primary">
+                  <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-project-diagram mr-1"></i> Interactive Network Map (OSMnx)</h3>
+                  </div>
+                  <div class="card-body p-0">
+                    <div id="osmnx-map-container" class="d-flex align-items-center justify-content-center" style="height: 400px; background: #e9ecef; border-radius: 5px;">
+                      <p class="text-muted text-center px-3"><i class="fas fa-info-circle mr-2"></i>OSMnx network map will appear here after analysis</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-6">
+                <!-- GIS Map -->
+                <div class="card card-outline card-success">
+                  <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-map-marked-alt mr-1"></i> Interactive Network Map (GIS)</h3>
+                  </div>
+                  <div class="card-body p-0">
+                    <div id="gis-map-container" class="d-flex align-items-center justify-content-center" style="height: 400px; background: #e9ecef; border-radius: 5px;">
+                      <p class="text-muted text-center px-3"><i class="fas fa-globe mr-2"></i>GIS network map will appear here after analysis</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Analysis Output -->
+            <div class="card card-outline card-info compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-terminal mr-1"></i> Analysis Output / Node Information</h3>
+              </div>
+              <div class="card-body">
+                <div id="analysisOutput" class="analysis-output">
+                  Network analysis results will appear here...
+                  
+Click "Analyze Network" to start processing.
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Charts Row - Network Statistics -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card card-outline card-primary compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-map-marked mr-1"></i> Total Travel Demand (VMT) by County</h3>
+              </div>
+              <div class="card-body">
+                <div class="chart-container">
+                  <canvas id="vmtByCountyChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card card-outline card-info compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-road mr-1"></i> Lane Utilization: Traffic Volume vs Lane Count</h3>
+              </div>
+              <div class="card-body">
+                <div class="chart-container">
+                  <canvas id="laneUtilizationChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card card-outline card-success compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-chart-bar mr-1"></i> Total Travel Demand (VMT) by Functional Class</h3>
+              </div>
+              <div class="card-body">
+                <div class="chart-container">
+                  <canvas id="vmtByFuncClassChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card card-outline card-warning compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-chart-line mr-1"></i> Projected Traffic Growth (%) by Functional Class</h3>
+              </div>
+              <div class="card-body">
+                <div class="chart-container">
+                  <canvas id="trafficGrowthChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card card-outline card-danger compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-ruler mr-1"></i> Total Network Mileage by Functional Class</h3>
+              </div>
+              <div class="card-body">
+                <div class="chart-container">
+                  <canvas id="mileageByFuncClassChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asset Table -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-outline card-dark compact-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-table mr-1"></i> Asset Inventory Details</h3>
+              </div>
+              <div class="card-body p-0">
+                <div class="scroll-table">
+                  <table class="table table-sm table-striped table-hover mb-0">
+                    <thead class="bg-light">
+                      <tr>
+                        <th>Route ID</th>
+                        <th>Road Classification</th>
+                        <th>Surface Type</th>
+                        <th>Length (km)</th>
+                        <th>Shoulder Width (m)</th>
+                        <th>No. of Lanes</th>
+                        <th>Pavement Type</th>
+                        <th>AADT</th>
+                        <th>Installation</th>
+                        <th>Speed Limit (km/h)</th>
+                        <th>Gradient (%)</th>
+                        <th>Cracking (%)</th>
+                        <th>Year Last Improvement</th>
+                        <th>Thickness (mm)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="assetTableBody">
+                      <tr>
+                        <td>RT-001</td>
+                        <td>Highway</td>
+                        <td>Good</td>
+                        <td>12.5</td>
+                        <td>2.5</td>
+                        <td>4</td>
+                        <td>Asphalt</td>
+                        <td>15,200</td>
+                        <td>2010</td>
+                        <td>100</td>
+                        <td>2.3</td>
+                        <td>5</td>
+                        <td>2020</td>
+                        <td>150</td>
+                      </tr>
+                      <tr>
+                        <td>RT-002</td>
+                        <td>Major Collector</td>
+                        <td>Moderate</td>
+                        <td>8.3</td>
+                        <td>2.0</td>
+                        <td>2</td>
+                        <td>Concrete</td>
+                        <td>8,500</td>
+                        <td>2005</td>
+                        <td>80</td>
+                        <td>3.1</td>
+                        <td>12</td>
+                        <td>2018</td>
+                        <td>200</td>
+                      </tr>
+                      <tr>
+                        <td>RT-003</td>
+                        <td>Local Street</td>
+                        <td>Poor</td>
+                        <td>4.2</td>
+                        <td>1.5</td>
+                        <td>2</td>
+                        <td>Asphalt</td>
+                        <td>2,300</td>
+                        <td>1998</td>
+                        <td>50</td>
+                        <td>1.8</td>
+                        <td>28</td>
+                        <td>2012</td>
+                        <td>100</td>
+                      </tr>
+                      <tr>
+                        <td>RT-004</td>
+                        <td>Expressway</td>
+                        <td>Good</td>
+                        <td>18.7</td>
+                        <td>3.0</td>
+                        <td>6</td>
+                        <td>Concrete</td>
+                        <td>28,400</td>
+                        <td>2015</td>
+                        <td>120</td>
+                        <td>1.5</td>
+                        <td>3</td>
+                        <td>2022</td>
+                        <td>250</td>
+                      </tr>
+                      <tr>
+                        <td>RT-005</td>
+                        <td>Minor Collector</td>
+                        <td>Moderate</td>
+                        <td>6.8</td>
+                        <td>1.8</td>
+                        <td>2</td>
+                        <td>Asphalt</td>
+                        <td>4,200</td>
+                        <td>2008</td>
+                        <td>60</td>
+                        <td>2.7</td>
+                        <td>15</td>
+                        <td>2019</td>
+                        <td>120</td>
+                      </tr>
+                      <tr>
+                        <td>RT-006</td>
+                        <td>Residential Road</td>
+                        <td>Very Poor</td>
+                        <td>2.1</td>
+                        <td>1.0</td>
+                        <td>2</td>
+                        <td>Asphalt</td>
+                        <td>850</td>
+                        <td>1995</td>
+                        <td>40</td>
+                        <td>4.2</td>
+                        <td>42</td>
+                        <td>2008</td>
+                        <td>80</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="main-footer text-sm">
+    <div class="float-right d-none d-sm-inline">Developed by <strong>Mazumder Research Group</strong></div>
+    <strong>Copyright &copy; 2026 <a href="https://pritom16.github.io/">Pritom16</a>.</strong> Mazumder Research Group
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+<script>
+// Backend API configuration
+const API_URL = 'https://transport-app.onrender.com/api';
+
+const FSYSTEM_MAP = {
+    1: 'Interstate',
+    2: 'Principal Arterial (Fwy/Exp)',
+    3: 'Principal Arterial (Other)',
+    4: 'Minor Arterial',
+    5: 'Major Collector',
+    6: 'Minor Collector',
+    7: 'Local'
+};
+
+$('#analyzeBtn').on('click', function() {
+    const lat = $('#latInput').val();
+    const lon = $('#lonInput').val();
+    const location = $('#locationInput').val();
+    const networkType = $('#networkType').val();
+
+    if (!(lat && lon) && !location) {
+        alert("Please enter a location or specific Lat/Lon coordinates.");
+        return;
+    }
+
+    // UI State: Loading
+    $(this).html('<i class="fas fa-spinner fa-spin"></i> Analyzing...').prop('disabled', true);
+    $('#analysisOutput').text("Downloading network data from OpenStreetMap and calculating connectivity...");
+
+    fetch(`${API_URL}/analyze_osmnx`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            location: location, 
+            lat: lat, 
+            lon: lon, 
+            network_type: networkType 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+    if (!data.success) throw new Error(data.error);
+
+    // 1. Update Map and Sidebar Metrics as usual
+    $('#osmnx-map-container').html(data.map_html);
+    $('#total-length').text(data.statistics.total_length + " KM");
+    $('#total-nodes').text((data.statistics.total_nodes / 1000).toFixed(1) + "K");
+    $('#asset-count').text(data.statistics.total_edges);
+    $('#gisMapContainer').html(`<img src="${data.map_img}" class="img-fluid" style="width:100%;">`);
+
+    // 2. FIXED: Append content instead of overwriting
+    const osmnxHeader = `<div class="osmnx-result mb-4">
+        <h5 class="text-primary font-weight-bold"><i class="fas fa-project-diagram"></i> OSMnx Network Report</h5>
+        <pre class="bg-dark text-light p-2 rounded" style="font-size: 0.75rem;">${data.network_description}</pre>
+    </div>`;
+
+    if (data.stats && data.stats.mileage_stats) {
+        const statsHtml = data.stats.mileage_stats.map(stat => `
+            <div class="info-box mb-3 bg-info">
+                <span class="info-box-icon"><i class="fas fa-road"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">${stat.Pavement_Category}</span>
+                    <span class="info-box-number">${(stat.SHAPE_Leng / 1609.34).toFixed(2)} Miles</span>
+                </div>
+            </div>
+        `).join('');
+        $('#pavementStatsContainer').html(statsHtml);
+    }
+
+    // If "Network analysis results..." placeholder exists, clear it first
+    if ($('#analysisOutput').text().includes("Network analysis results")) {
+        $('#analysisOutput').empty();
+    }
+
+    $('#analysisOutput').prepend(osmnxHeader);
+    $('#analyzeBtn').html('<i class="fas fa-play mr-1"></i> Analyze Network').prop('disabled', false);
+  })
+    .catch(error => {
+        console.error(error);
+        alert("OSMnx Analysis Failed: " + error.message);
+        $('#analyzeBtn').html('<i class="fas fa-play mr-1"></i> Analyze Network').prop('disabled', false);
+    });
+});
+
+// Global Chart instances
+let vmtCountyChart, laneUtilChart, vmtClassChart, growthChart, mileageChart;
+
+$(function () {
+  // Initialize charts on page load
+  initializeAllCharts();
+
+  // Update file label text when a file is selected
+  $(document).on('change', '.custom-file-input', function() {
+    let fileName = $(this).val().split('\\').pop();
+    $(this).next('.custom-file-label').addClass("selected").html(fileName);
+  });
+
+  // Main Analysis Button Handler
+  $('#uploadAnalyzeBtn').on('click', function() {
+    uploadAndAnalyzeGIS();
+  });
+});
+
+/**
+ * Main function to handle file upload and analysis
+ * Includes AbortController to handle long-running GDOT processing
+ */
+async function uploadAndAnalyzeGIS() {
+  const fileInput = document.getElementById('gisFileInput');
+  if (fileInput.files.length === 0) {
+    alert("Please select a GIS file (GDB, GeoJSON, etc.) before analyzing.");
+    return;
+  }
+
+  // Build FormData for file and filter parameters
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+  formData.append('asset_status', $('#statusActive').is(':checked') ? 'Active' : 'Inactive');
+  formData.append('owner_type', $('#ownerPublic').is(':checked') ? 'Public' : 'Private');
+  
+  // Collect all checked Functional Class IDs
+  $('input[id^="fc"]:checked').each(function() {
+    formData.append('functional_class', this.id.replace('fc', ''));
+  });
+
+  // UI State: Loading
+  $('#uploadAnalyzeBtn').html('<i class="fas fa-spinner fa-spin"></i> Processing GDOT Data...').prop('disabled', true);
+  $('#analysisOutput').text("Processing network geometries and calculating statistics... This may take a few minutes for large datasets.");
+
+  // Set a 15-minute timeout for large traffic files
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 900000); 
+
+  try {
+    const response = await fetch(`${API_URL}/analyze_gis`, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal
+    });
+
+    const data = await response.json();
+    clearTimeout(timeoutId);
+
+    if (!data.success) throw new Error(data.error);
+
+    // I. Update Interactive Map with ESRI Imagery
+    $('#gis-map-container').html(`<img src="${data.map_img}" style="width:100%; height:100%; object-fit:contain; border-radius:5px;">`);
+    
+    const gisHeader = `<div class="gis-result mb-3 border-top pt-2">
+        <h5 class="text-success font-weight-bold"><i class="fas fa-check-circle"></i> GIS Analysis Status</h5>
+        <p class="mb-0">Analysis Complete. All statistics and maps synchronized with GDOT 2024 Inventory logic.</p>
+        <small class="text-muted">Filtered Records: ${data.asset_inventory.length} processed for table.</small>
+    </div>`;
+
+    if ($('#analysisOutput').text().includes("Network analysis results")) {
+        $('#analysisOutput').empty();
+    }
+
+    $('#analysisOutput').prepend(gisHeader);
+    $('#uploadAnalyzeBtn').html('<i class="fas fa-check mr-1"></i> Analysis Complete').prop('disabled', false);
+    
+
+    // II. Update Visualizations using Colab-aligned stats
+    const stats = data.stats;
+
+    // 1. Total Travel Demand (VMT) by County
+    updateChartData(vmtCountyChart, stats.county_stats, 'COUNTY_ID', 'VMT');
+    
+    // 2. Lane Utilization Scatter (Matching Colab Bubble logic with K_Factor)
+    laneUtilChart.data.datasets[0].data = stats.lane_utilization.map(item => ({
+      x: item.THROUGH_LANES_HPMS,
+      y: item.AADTRound,
+      // Radius Normalization: Clamps size between 3 and 12 pixels
+      r: Math.min(Math.max(item.K_Factor * 50, 3), 12) 
+    }));
+
+    // Add Reference Line (Capacity Threshold) via a separate dataset
+    // This replicates your "fig.add_shape" red dashed line logic
+    laneUtilChart.data.datasets[1] = {
+        label: 'Capacity Threshold',
+        type: 'line',
+        data: [{x: 0, y: 0}, {x: 8, y: 160000}], // Extended for 2024 traffic scales
+        borderColor: 'red',
+        borderDash: [5, 5],
+        fill: false,
+        pointRadius: 0
+    };
+    
+    laneUtilChart.update();
+
+    // 3. VMT by Functional Class
+    updateChartData(vmtClassChart, stats.vmt_by_class, 'Functional_Class_Name', 'VMT');
+
+    // 4. Projected Traffic Growth %
+    updateChartData(growthChart, stats.growth_stats, 'Functional_Class_Name', 'AADT_Growth_Pct');
+
+    // 5. Network Mileage
+    updateChartData(mileageChart, stats.mileage_stats, 'Functional_Class_Name', 'Mileage');
+
+    // III. Update Asset Inventory Table
+    renderAssetTable(data.asset_inventory);
+
+    // IV. Finalize UI
+    $('#analysisOutput').text("Analysis Complete. All statistics and maps synchronized with GDOT 2024 Inventory logic.");
+    $('#uploadAnalyzeBtn').html('<i class="fas fa-check mr-1"></i> Analysis Complete').prop('disabled', false);
+
+  } catch (error) {
+    clearTimeout(timeoutId);
+    console.error("GIS Analysis Error:", error);
+    let errorMsg = error.name === 'AbortError' ? "Processing timed out. The dataset is too large for the current server settings." : error.message;
+    alert("Analysis failed: " + errorMsg);
+    $('#uploadAnalyzeBtn').html('<i class="fas fa-chart-line mr-1"></i> Analyze Uploaded Data').prop('disabled', false);
+    $('#analysisOutput').text("Error: " + errorMsg);
+  }
+}
+
+/**
+ * Initialize Chart.js instances with responsive options
+ */
+function initializeAllCharts() {
+  const commonOptions = { 
+    maintainAspectRatio: false, 
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } }
+  };
+
+  vmtCountyChart = new Chart($('#vmtByCountyChart'), { 
+    type: 'bar', 
+    data: { labels: [], datasets: [{ label: 'VMT', backgroundColor: '#007bff', data: [] }] }, 
+    options: commonOptions 
+  });
+  
+  laneUtilChart = new Chart($('#laneUtilizationChart'), {
+    type: 'bubble',
+    data: { datasets: [{ 
+        label: 'AADT vs Lanes', 
+        backgroundColor: 'rgba(23, 162, 184, 0.4)', // Lower opacity helps with overlap
+        borderColor: 'rgba(23, 162, 184, 1)',
+        borderWidth: 1,
+        data: [] 
+    }] },
+    options: {
+      maintainAspectRatio: false,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const p = stats.lane_utilization[context.dataIndex];
+              return `Route: ${p.ROUTE_ID} | AADT: ${p.AADTRound.toLocaleString()} | K: ${p.K_Factor}`;
+            }
+          }
+        }
+      },
+      scales: { 
+        x: { title: { display: true, text: 'Number of Through Lanes' }, beginAtZero: true }, 
+        y: { title: { display: true, text: 'Daily Traffic (AADT)' }, beginAtZero: true } 
+      }
+    }
+  });
+
+  vmtClassChart = new Chart($('#vmtByFuncClassChart'), { 
+    type: 'bar', 
+    data: { labels: [], datasets: [{ label: 'VMT', backgroundColor: '#28a745', data: [] }] }, 
+    options: commonOptions 
+  });
+
+  growthChart = new Chart($('#trafficGrowthChart'), { 
+    type: 'bar', 
+    data: { labels: [], datasets: [{ label: 'Avg Growth (%)', backgroundColor: '#ffc107', data: [] }] }, 
+    options: commonOptions 
+  });
+
+  mileageChart = new Chart($('#mileageByFuncClassChart'), { 
+    type: 'bar', 
+    data: { labels: [], datasets: [{ label: 'Miles', backgroundColor: '#dc3545', data: [] }] }, 
+    options: commonOptions 
+  });
+}
+
+/**
+ * Helper to update Chart.js bar charts
+ */
+function updateChartData(chart, sourceData, labelProp, valueProp) {
+  chart.data.labels = sourceData.map(d => d[labelProp]);
+  chart.data.datasets[0].data = sourceData.map(d => d[valueProp]);
+  chart.update();
+}
+
+/**
+ * Renders the asset inventory table using GDOT 2024 specific columns
+ */
+function renderAssetTable(inventory) {
+  const $tbody = $('#assetTableBody');
+  $tbody.empty();
+  
+  if (!inventory || inventory.length === 0) {
+    $tbody.append('<tr><td colspan="14" class="text-center text-muted">No records found. Check if filters are too restrictive.</td></tr>');
+    return;
+  }
+
+  // Helper to find a value regardless of case (GDOT data often varies)
+  const getVal = (obj, key) => {
+    const foundKey = Object.keys(obj).find(k => k.toLowerCase() === key.toLowerCase());
+    return foundKey ? obj[foundKey] : null;
+  };
+
+  inventory.forEach(item => {
+    const fSys = getVal(item, 'F_SYSTEM');
+    const roadClass = item.Functional_Class_Name || (FSYSTEM_MAP[fSys] || 'N/A');
+
+    $tbody.append(`
+      <tr>
+        <td>${getVal(item, 'ROUTE_ID') || 'N/A'}</td>
+        <td>${roadClass}</td>
+        <td>${getVal(item, 'SURFACE_INC') || 'N/A'}</td>
+        <td>${parseFloat(getVal(item, 'Mileage') || 0).toFixed(2)}</td>
+        <td>${getVal(item, 'SHOULDER_WIDTH_R') || 0}</td>
+        <td>${getVal(item, 'THROUGH_LANES_HPMS') || 0}</td>
+        <td>${getVal(item, 'isPaved') || 'N/A'}</td>
+        <td>${parseInt(getVal(item, 'AADTRound') || 0).toLocaleString()}</td>
+        <td>${getVal(item, 'YEAR_BUILT') || 'N/A'}</td>
+        <td>${getVal(item, 'Mileage') || 0}</td>
+        <td>${getVal(item, 'GRADIENT') || 0}</td>
+        <td>${getVal(item, 'CRACKING') || 0}</td>
+        <td>${getVal(item, 'YEAR_LAST_IMPROVED') || 'N/A'}</td>
+        <td>${getVal(item, 'THICKNESS') || 0}</td>
+      </tr>
+    `);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+# Large data files
+Data/Road_Inventory_2024.gdb/
+Data/Road_Inventory_Geodatabase.zip
+Data/Traffic_2024_Geodatabase/
+Data/Traffic_2024_Tabular_Data/
+Data/TRAFFIC_Data_2024.gdb/
+Data/TRAFFIC_Data_2024.zip
+
+# Python environment
+.venv/
+venv/
+env/
+
+# Cache files
+__pycache__/
+*.pyc
+.pytest_cache/
+.cache/
+cache/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
