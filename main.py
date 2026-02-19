@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import geopandas as gpd
 import pandas as pd
@@ -12,25 +12,19 @@ import contextily as ctx
 import io
 import base64
 import os
-import traceback
 from werkzeug.utils import secure_filename
 import folium
 from branca.colormap import LinearColormap
 import momepy
 
 app = Flask(__name__)
-# Allow requests from localhost (development) and from the Render frontend URL (production)
-CORS(app, resources={r"/api/*": {"origins": ["*"]}})
+CORS(app)
 
 
-
-ALLOWED_EXTENSIONS = {'gdb', 'shp', 'geojson', 'zip'}
-
+# Configuration of File Uploads
 UPLOAD_FOLDER = 'uploads'
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
+ALLOWED_EXTENSIONS = {'gdb', 'shp', 'geojson', 'zip'}
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'external_uploads')
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 MB limit
 
 if not os.path.exists(UPLOAD_FOLDER):
@@ -51,6 +45,7 @@ FSYSTEM_MAP = {
 }
 
 def get_plot_as_base64():
+    """Convert the current matplotlib plot to a base64 string for HTML display"""
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight', dpi=300)
     buf.seek(0)
@@ -58,31 +53,10 @@ def get_plot_as_base64():
     plt.close()
     return f"data:image/png;base64,{img_str}"
 
-# Serve static pages
-@app.route('/')
-def index():
-    return send_from_directory('.', 'index.html')
-
-@app.route('/centrality')
-def centrality():
-    return send_from_directory('.', 'centrality.html')
-
-@app.route('/failure')
-def failure():
-    return send_from_directory('.', 'failure.html')
-
-# Error handlers
-@app.errorhandler(404)
-def not_found(error):
-    return jsonify({'error': 'Not found'}), 404
-
-@app.errorhandler(500)
-def internal_error(error):
-    return jsonify({'error': 'Internal server error'}), 500
-
 @app.route('/api/analyze_osmnx', methods=['POST'])
 def analyze_osmnx():
-
+    # Analyzing network using OSMnx based on location, coordinates and network type
+    # Returning detailed information of network and statistics
     try:
         data = request.json
         location = data.get('location')
@@ -100,9 +74,7 @@ def analyze_osmnx():
         
         stats = calculate_network_statistics(G)
 
-        # Use location if provided, otherwise use coordinates
-        place_name = location if location else f"{lat}, {lon}" if lat and lon else "Unknown Location"
-        network_description = generate_network_description(G, stats, place_name)
+        network_description = generate_network_description(G, stats, location or f"{lat}, {lon}")
 
         # --- Fixed in main.py analyze_osmnx() ---
         node_gdf = ox.graph_to_gdfs(G, edges=False)
@@ -169,8 +141,9 @@ def analyze_osmnx():
         return jsonify(response)
     
     except Exception as e:
+        import traceback
         print(traceback.format_exc())
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 
 
 def calculate_network_statistics(G):
@@ -391,7 +364,7 @@ def analyze_gis():
             ax.set_title(f"Filtered Network View ({', '.join(f_classes)})")
 
         else:
-            # Fallback if no data matches filters
+            
             ax.text(0.5, 0.5, 'No data matches selected filters', 
                     horizontalalignment='center', verticalalignment='center', fontsize=20)
 
@@ -406,7 +379,7 @@ def analyze_gis():
             'CRACKING', 'YEAR_LAST_IMPROVED', 'THICKNESS'
         ]
 
-        # Check which columns actually exist in the dataframe to avoid KeyErrors
+
         available_cols = [c for c in inventory_cols if c in filtered_df.columns]
 
         return jsonify({
@@ -545,6 +518,6 @@ def analyze_centrality():
 
 
 if __name__ == "__main__":
+
     port = int(os.environ.get("PORT", 5000))
-    debug_mode = os.environ.get("FLASK_ENV") == "development"
-    app.run(host='0.0.0.0', port=port, debug=debug_mode, use_reloader=False)
+    app.run(host='0.0.0.0', port=port, debug=True, use_reloader=True)
