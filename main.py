@@ -20,6 +20,10 @@ import momepy
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/')
+def home():
+    return "TAM Dashboard API is Running! Connect via the frontend at GitHub Pages."
+
 
 # Configuration of File Uploads
 UPLOAD_FOLDER = 'uploads'
